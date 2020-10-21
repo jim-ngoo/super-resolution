@@ -1,4 +1,7 @@
 .ipynb_checkpoints
 .div2k
 .ckpt
-
+weights/
+__pycache__
+mis/
+.vscode/
