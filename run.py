@@ -28,8 +28,8 @@ os.makedirs(weights_dir, exist_ok=True)
 train_ds = tfds.load('sr_dataset', split='train', as_supervised=True, shuffle_files=True)
 valid_ds = tfds.load('sr_dataset', split='test', as_supervised=True, shuffle_files=True)
 
-train_ds = train_ds.shuffle(buffer_size=100).batch(4)
-valid_ds = valid_ds.shuffle(buffer_size=100).batch(4)
+train_ds = train_ds.shuffle(buffer_size=100).repeat(100).batch(4)
+valid_ds = valid_ds.shuffle(buffer_size=100).repeat(100).batch(4)
 
 # Generator pre-training
 
@@ -38,8 +38,8 @@ model.summary()
 pre_trainer = SrganGeneratorTrainer(model=generator(), checkpoint_dir=f'.ckpt/pre_generator')
 pre_trainer.train(train_ds,
                   valid_ds.take(10),
-                  steps=80,
-                  evaluate_every=10,
+                  steps=8000,
+                  evaluate_every=80,
                   save_best_only=False)
 
 pre_trainer.model.save_weights(weights_file('pre_generator.h5'))
