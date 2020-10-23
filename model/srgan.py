@@ -24,7 +24,7 @@ def res_block(x_in, num_filters, momentum=0.8):
     return x
 
 
-def sr_resnet(num_filters=64, num_res_blocks=16):
+def sr_resnet(num_filters=16, num_res_blocks=4):
     x_in = Input(shape=(None, None, 3))
     x = Lambda(normalize_01)(x_in)
 
@@ -38,8 +38,8 @@ def sr_resnet(num_filters=64, num_res_blocks=16):
     x = BatchNormalization()(x)
     x = Add()([x_1, x])
 
-    x = upsample(x, num_filters * 4)
-    x = upsample(x, num_filters * 4)
+    #x = upsample(x, num_filters * 4) #comment
+    #x = upsample(x, num_filters * 4) #comment
 
     x = Conv2D(3, kernel_size=9, padding='same', activation='tanh')(x)
     x = Lambda(denormalize_m11)(x)

@@ -5,3 +5,5 @@ weights/
 __pycache__
 mis/
 .vscode/
+datasets/
+demo/

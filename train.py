@@ -1,7 +1,9 @@
 import time
 import tensorflow as tf
 
-from model import evaluate
+from model import evaluate, resolve_single
+from utils import load_image
+import matplotlib.pyplot as plt
 from model import srgan
 
 from tensorflow.keras.applications.vgg19 import preprocess_input
@@ -36,6 +38,27 @@ class Trainer:
     def model(self):
         return self.checkpoint.model
 
+    def resolve_and_plot(self, lr_image_path, idx):
+        lr = load_image(lr_image_path + '.png')
+
+        pre_sr = resolve_single(self.checkpoint.model, lr)
+        #gan_sr = resolve_single(gan_generator, lr)
+
+        plt.figure(figsize=(20, 20))
+
+        images = [lr, pre_sr]
+        titles = ['LR', 'SR (PRE)']
+        positions = [1, 3]
+
+        for i, (img, title, pos) in enumerate(zip(images, titles, positions)):
+            plt.subplot(2, 2, pos)
+            plt.imshow(img)
+            plt.title(title)
+            plt.xticks([])
+            plt.yticks([])
+
+        plt.savefig('%s_%d.png' % (lr_image_path, idx))
+
     def train(self, train_dataset, valid_dataset, steps, evaluate_every=1000, save_best_only=False):
         loss_mean = Mean()
 
@@ -45,6 +68,7 @@ class Trainer:
         self.now = time.perf_counter()
 
         for lr, hr in train_dataset.take(steps - ckpt.step.numpy()):
+            #print('check1..', steps, ckpt.step.numpy())
             ckpt.step.assign_add(1)
             step = ckpt.step.numpy()
 
@@ -60,6 +84,9 @@ class Trainer:
 
                 duration = time.perf_counter() - self.now
                 print(f'{step}/{steps}: loss = {loss_value.numpy():.3f}, PSNR = {psnr_value.numpy():3f} ({duration:.2f}s)')
+                #########
+                self.resolve_and_plot('demo/img_0', step)
+                #########
 
                 if save_best_only and psnr_value <= ckpt.psnr:
                     self.now = time.perf_counter()

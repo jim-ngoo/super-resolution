@@ -5,6 +5,7 @@ from PIL import Image
 
 
 def load_image(path):
+    img = np.array(Image.open(path).convert('RGB'))
     return np.array(Image.open(path))
 
 
